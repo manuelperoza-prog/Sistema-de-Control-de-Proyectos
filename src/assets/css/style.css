@@ -1,0 +1,14 @@
+:root {
+    /* --- Acentos y Alertas --- */
+    --c-primary: #0082FB;    /* Acento Primario, Valores Críticos */
+    --c-secondary: #004E98;  /* Acento Secundario, Enlaces, Hovers */
+    --c-warning: #FF9500;    /* Botón Primario, Alertas */
+
+    /* --- Fondos (Modo Oscuro) --- */
+    --c-bg-main: #1A1D20;    /* Fondo Principal de la aplicación */
+    --c-bg-card: #2E343A;    /* Fondo para las Tarjetas del Dashboard */
+    --c-bg-sidebar: #000000; /* Fondo del Menú Lateral */
+
+    /* --- Textos --- */
+    --c-text-main: #FFFFFF;  /* Texto Principal */
+}
