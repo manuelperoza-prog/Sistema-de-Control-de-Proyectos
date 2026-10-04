@@ -1,3 +1,24 @@
+@font-face {
+    font-family: 'CooperSemiBold';
+    /* Ajusta el nombre exacto del archivo y su formato (.ttf, .otf, .woff2) */
+    src: url('../fonts/Cooper-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'ITCAvantGardeGothic';
+    src: url('../fonts/ITCAvantGardeGothic-Demi.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'GoogleSans-Regular';
+    src: url('../fonts/GoogleSans-Regular.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
 :root {
     /* --- Acentos y Alertas --- */
     --c-primary: #0082FB;    /* Acento Primario, Valores Críticos */
@@ -11,6 +32,12 @@
 
     /* --- Textos --- */
     --c-text-main: #FFFFFF;  /* Texto Principal */
+
+    --t-title-font: 'CooperSemiBold'; /* Fuente para Títulos */
+
+    --t-subtitle-font: 'ITCAvantGardeGothic'; /* Fuente para Subtítulos */
+
+    --t-body-font: 'GoogleSans-Regular'; /* Fuente para Cuerpo de Texto */
 }
 
 html, body {
