@@ -28,7 +28,7 @@ defineProps({
         display: flex;
         flex-direction: column;
         height: 100vh;
-        width: 15vw;
+        width: 16vw;
         border-right: 1px solid var(--c-bg-card);
         background-color: var(--c-bg-sidebar);
         justify-content: flex-start; 
@@ -39,7 +39,7 @@ defineProps({
     .title {
         color: var(--c-text-main);
         text-align: center;
-        margin-bottom:40px;
+        margin-bottom:25px;
         font-family: var(--t-title-font);
     }
 </style>

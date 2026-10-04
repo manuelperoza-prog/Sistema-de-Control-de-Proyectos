@@ -10,7 +10,7 @@ const status = ['active', 'btn', 'btn', 'btn', 'btn'];
     <div class="dashboard">
         <Sidebar :status="status" />
         <div class="content">
-            <Header />
+            <Header title="Visión General del Proyecto" />
             <router-view />
         </div>
 
