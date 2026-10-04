@@ -12,3 +12,11 @@
     /* --- Textos --- */
     --c-text-main: #FFFFFF;  /* Texto Principal */
 }
+
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Evita que se genere scroll en toda la ventana del navegador */
+    overflow: hidden; 
+}
