@@ -27,7 +27,7 @@
     border: none;
     border-bottom: 1px solid var(--c-bg-card);
     cursor: pointer;
-    text-align: left;
+    text-align: center;
     font-size: 1rem;
     box-sizing: border-box;
     display: block;
@@ -56,7 +56,11 @@
     padding-left: 25px; 
 }
 
-.btn:active {
+.active:hover {
+    padding-left: 30px; 
+}
+
+.btn:active, .active:active {
     transform: scale(0.98);
 }
 </style>
