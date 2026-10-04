@@ -39,6 +39,7 @@ defineProps({
     .title {
         color: var(--c-text-main);
         text-align: center;
-        margin-bottom:40px 
+        margin-bottom:40px;
+        font-family: var(--t-title-font);
     }
 </style>

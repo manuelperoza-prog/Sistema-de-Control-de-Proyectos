@@ -32,6 +32,7 @@
     box-sizing: border-box;
     display: block;
     margin: 0;
+    font-family: var(--t-subtitle-font);
     
     transition: 
         background-color 0.4s ease, 
