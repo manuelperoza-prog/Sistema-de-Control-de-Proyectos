@@ -1,14 +1,35 @@
 <script setup>
 import Sidebar from '../components/layout/Sidebar.vue';
+import Header from '../components/layout/Header.vue';
 
 const status = ['btn', 'btn', 'btn', 'active', 'btn'];
 
 </script>
 
 <template>
-    <Sidebar :status="status"/>
+    <div class="dashboard">
+        <Sidebar :status="status" />
+        <div class="content">
+            <Header title="Materiales del proyecto" />
+            <router-view />
+        </div>
+
+    </div>
 </template>
 
 <style scoped>
+
+    .dashboard {
+        display: flex;
+        flex-direction: row;
+        height: 100vh;
+    }
+
+    .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
 
 </style>
