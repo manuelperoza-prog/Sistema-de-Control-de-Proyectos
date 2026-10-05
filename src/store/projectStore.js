@@ -1,6 +1,10 @@
-import { reactive, computed } from 'vue';
+// src/store/projectStore.js
+import { reactive, computed, watch } from 'vue';
 
-const state = reactive({
+const STORAGE_KEY = 'control_proyectos_db';
+
+// Datos por defecto (se usan si no hay nada guardado en el navegador)
+const datosPorDefecto = {
     personal: [
         { id: 1, nombre: 'Carlos Rodríguez', costoHora: 25 },
         { id: 2, nombre: 'Ana Martínez', costoHora: 30 },
@@ -21,7 +25,7 @@ const state = reactive({
             id: 1,
             nombre: 'Preparación de Terreno y Fundaciones',
             fecha: '2026-10-05',
-            completada: true, // Tarea concluida -> Suma a costos reales
+            completada: true,
             asignacionesPersonal: [
                 { personalId: 1, horas: 6 },
                 { personalId: 2, horas: 5 }
@@ -38,11 +42,11 @@ const state = reactive({
         {
             id: 2,
             nombre: 'Vaciado de Concreto e Instalación Eléctrica',
-            fecha: '2026-10-05', // Misma fecha que la tarea 1 para activar sobreutilización
+            fecha: '2026-10-05',
             completada: false,
             asignacionesPersonal: [
-                { personalId: 1, horas: 4 }, // Carlos acumula 6h + 4h = 10h (> 8h en el día)
-                { personalId: 2, horas: 4 }  // Ana acumula 5h + 4h = 9h (> 8h en el día)
+                { personalId: 1, horas: 4 },
+                { personalId: 2, horas: 4 }
             ],
             materialesUsados: [
                 { materialId: 1, cantidad: 20 },
@@ -68,19 +72,43 @@ const state = reactive({
             ]
         }
     ]
-});
+};
 
+// Cargar datos iniciales desde LocalStorage o usar los predeterminados
+const cargarEstadoInicial = () => {
+    const datosGuardados = localStorage.getItem(STORAGE_KEY);
+    if (datosGuardados) {
+        try {
+            return JSON.parse(datosGuardados);
+        } catch (error) {
+            console.error('Error al leer de localStorage:', error);
+        }
+    }
+    return JSON.parse(JSON.stringify(datosPorDefecto));
+};
 
+// Estado global reactivo
+const state = reactive(cargarEstadoInicial());
+
+// Sincronización automática con LocalStorage ante cualquier cambio profundo
+watch(
+    state,
+    (nuevoEstado) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(nuevoEstado));
+    },
+    { deep: true }
+);
+
+// ==========================================
 // CÁLCULOS REACTIVOS (DASHBOARD)
+// ==========================================
 
-// Porcentaje de avance del proyecto
 const avanceProyecto = computed(() => {
     if (state.tareas.length === 0) return 0;
     const completadas = state.tareas.filter(t => t.completada).length;
     return Math.round((completadas / state.tareas.length) * 100);
 });
 
-// Costo de Personal: Estimado vs Real
 const costosPersonal = computed(() => {
     let estimado = 0;
     let real = 0;
@@ -99,7 +127,6 @@ const costosPersonal = computed(() => {
     return { estimado, real };
 });
 
-// Costo de Materiales: Estimado vs Real
 const costosMateriales = computed(() => {
     let estimado = 0;
     let real = 0;
@@ -118,7 +145,6 @@ const costosMateriales = computed(() => {
     return { estimado, real };
 });
 
-// Otros Gastos: Estimado vs Real
 const costosOtros = computed(() => {
     let estimado = 0;
     let real = 0;
@@ -137,15 +163,13 @@ const costosOtros = computed(() => {
     return { estimado, real };
 });
 
-// Costo Total del Proyecto: Estimado vs Real
 const costoTotalProyecto = computed(() => ({
     estimado: costosPersonal.value.estimado + costosMateriales.value.estimado + costosOtros.value.estimado,
     real: costosPersonal.value.real + costosMateriales.value.real + costosOtros.value.real
 }));
 
-// Detección de Personal Sobreutilizado (> 8 horas asignadas en una misma fecha)
 const personalSobreutilizado = computed(() => {
-    const mapaHoras = {}; // Clave: "personalId_fecha" -> { totalHoras, tareas }
+    const mapaHoras = {};
 
     state.tareas.forEach(tarea => {
         tarea.asignacionesPersonal.forEach(asig => {
@@ -180,10 +204,10 @@ const personalSobreutilizado = computed(() => {
     return alertas;
 });
 
-
+// ==========================================
 // REGLAS DE ELIMINACIÓN Y MUTACIONES
+// ==========================================
 
-// Validaciones de dependencia (Ningún elemento puede borrarse si está/fue asignado)
 const puedeBorrarPersonal = (id) => {
     return !state.tareas.some(t => t.asignacionesPersonal.some(a => a.personalId === id));
 };
@@ -199,14 +223,12 @@ const puedeBorrarOtroCosto = (id) => {
 const puedeBorrarTarea = (id) => {
     const tarea = state.tareas.find(t => t.id === id);
     if (!tarea) return false;
-    // No puede borrarse si tuvo o tiene asignado personal, materiales o costos
     const tienePersonal = tarea.asignacionesPersonal.length > 0;
     const tieneMateriales = tarea.materialesUsados.length > 0;
     const tieneCostos = tarea.otrosCostosUsados.length > 0;
     return !tienePersonal && !tieneMateriales && !tieneCostos;
 };
 
-// Acciones para agregar registros
 const agregarPersonal = (nombre, costoHora) => {
     state.personal.push({
         id: Date.now(),
@@ -243,7 +265,6 @@ const agregarTarea = (nuevaTarea) => {
     });
 };
 
-// Acciones para eliminar con validación estricta
 const eliminarPersonal = (id) => {
     if (!puedeBorrarPersonal(id)) {
         alert('No se puede eliminar este personal: está asignado a una o más tareas.');
@@ -280,7 +301,6 @@ const eliminarTarea = (id) => {
     return true;
 };
 
-// Alternar estado concluido de la tarea
 const alternarEstadoTarea = (id) => {
     const tarea = state.tareas.find(t => t.id === id);
     if (tarea) {
@@ -288,23 +308,28 @@ const alternarEstadoTarea = (id) => {
     }
 };
 
-// Exportación del hook composable del store
+// Función auxiliar opcional para volver a los datos de prueba
+const reiniciarDatos = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    state.personal = JSON.parse(JSON.stringify(datosPorDefecto.personal));
+    state.materiales = JSON.parse(JSON.stringify(datosPorDefecto.materiales));
+    state.otrosCostos = JSON.parse(JSON.stringify(datosPorDefecto.otrosCostos));
+    state.tareas = JSON.parse(JSON.stringify(datosPorDefecto.tareas));
+};
+
 export const useProjectStore = () => {
     return {
         state,
-        // Métricas reactivas
         avanceProyecto,
         costosPersonal,
         costosMateriales,
         costosOtros,
         costoTotalProyecto,
         personalSobreutilizado,
-        // Validaciones
         puedeBorrarPersonal,
         puedeBorrarMaterial,
         puedeBorrarOtroCosto,
         puedeBorrarTarea,
-        // Acciones
         agregarPersonal,
         agregarMaterial,
         agregarOtroCosto,
@@ -313,6 +338,7 @@ export const useProjectStore = () => {
         eliminarMaterial,
         eliminarOtroCosto,
         eliminarTarea,
-        alternarEstadoTarea
+        alternarEstadoTarea,
+        reiniciarDatos
     };
 };

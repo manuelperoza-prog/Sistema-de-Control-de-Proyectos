@@ -42,26 +42,32 @@ defineProps({
     border-radius: 8px;
     margin-bottom: 12px;
     border-left: 6px solid var(--c-warning);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-top: 1px solid var(--c-bg-sidebar);
+    border-right: 1px solid var(--c-bg-sidebar);
+    border-bottom: 1px solid var(--c-bg-sidebar);
+    transition: transform 0.2s ease;
+    font-family: var(--t-body-font);
 }
 
 .alert-item:hover {
-    transform: translateX(5px);
-    box-shadow: -4px 4px 10px var(--c-bg-main);
+    transform: translateX(6px);
 }
 
 .alert-header strong {
     color: var(--c-warning);
+    font-family: var(--t-body-font);
 }
 
 .highlight {
     color: var(--c-warning);
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .alert-details small {
     color: var(--c-text-main);
+    opacity: 0.7;
     display: inline-block;
     margin-top: 4px;
+    font-family: var(--t-body-font);
 }
 </style>

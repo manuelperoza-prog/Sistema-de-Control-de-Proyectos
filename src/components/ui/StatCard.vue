@@ -24,10 +24,10 @@ defineProps({
         <h3>{{ title }}</h3>
         <div class="value">{{ value }}</div>
 
-        <!-- Slot para contenido personalizado (como la barra de progreso) -->
+        <!-- Slot para inyectar elementos especiales (como la barra de progreso) -->
         <slot></slot>
 
-        <!-- Comparación condicional (solo aparece si pasas estimado y real) -->
+        <!-- Comparativa Estimado vs Real -->
         <div v-if="estimado !== null && real !== null" class="comparison">
             <span class="est">Est: ${{ Number(estimado).toLocaleString() }}</span>
             <span class="real">Real: ${{ Number(real).toLocaleString() }}</span>
@@ -38,40 +38,45 @@ defineProps({
 <style scoped>
 .card {
     background-color: var(--c-bg-card);
-    padding: 20px;
+    padding: 22px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px var(--c-bg-main);
-    border: 1px solid var(--c-bg-card);
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--c-bg-main);
+    box-sizing: border-box;
+    font-family: var(--t-body-font);
+    /* Transición suave para elevación y borde */
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
+/* Efecto hover exigido */
 .card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 20px var(--c-bg-main);
-    border-color: var(--c-secondary);
+    border-color: var(--c-primary);
 }
 
 h3 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--c-text-main);
-    opacity: 0.9;
+    font-family: var(--t-subtitle-font);
 }
 
 .value {
-    font-size: 2rem;
+    font-size: 2.1rem;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 12px 0 8px 0;
     color: var(--c-primary);
+    font-family: var(--t-body-font);
 }
 
 .comparison {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border-top: 1px solid var(--c-bg-main);
     padding-top: 10px;
     margin-top: 10px;
+    font-family: var(--t-body-font);
 }
 
 .comparison span.real {
@@ -80,6 +85,7 @@ h3 {
 }
 
 .comparison span.est {
-    color: var(--c-bg-card);
+    color: var(--c-text-main);
+    opacity: 0.6;
 }
 </style>
