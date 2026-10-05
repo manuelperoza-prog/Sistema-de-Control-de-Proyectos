@@ -227,13 +227,13 @@ const guardar = () => {
                             <td>
                                 <div class="resources-summary">
                                     <span v-if="tarea.asignacionesPersonal.length > 0">
-                                        👤 {{ tarea.asignacionesPersonal.length }} trab.
+                                        {{ tarea.asignacionesPersonal.length }} trab.
                                     </span>
                                     <span v-if="tarea.materialesUsados.length > 0">
-                                        🧱 {{ tarea.materialesUsados.length }} mat.
+                                        {{ tarea.materialesUsados.length }} mat.
                                     </span>
                                     <span v-if="tarea.otrosCostosUsados.length > 0">
-                                        💰 {{ tarea.otrosCostosUsados.length }} gastos
+                                        {{ tarea.otrosCostosUsados.length }} gastos
                                     </span>
                                     <span v-if="tarea.asignacionesPersonal.length === 0 && tarea.materialesUsados.length === 0 && tarea.otrosCostosUsados.length === 0" class="muted">
                                         Sin recursos
