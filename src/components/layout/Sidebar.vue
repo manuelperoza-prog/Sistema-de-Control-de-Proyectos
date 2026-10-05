@@ -33,7 +33,7 @@ defineProps({
 <style scoped>
 .sidebar-container {
     width: 250px;
-    min-width: 18vw;
+    min-width: 19vw;
     height: 100vh;
     background-color: var(--c-bg-sidebar);
     border-right: 1px solid var(--c-bg-card);

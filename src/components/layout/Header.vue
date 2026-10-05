@@ -22,7 +22,7 @@ defineProps({
 
 <style scoped>
 .top-header {
-    height: 12vh;
+    height: 12.3vh;
     padding: 0 30px;
     display: flex;
     justify-content: space-between;
