@@ -21,11 +21,11 @@ defineProps({
             <h2>Control Proyectos</h2>
         </div>
         <nav class="nav-list">
-            <ButtonSide label="📊 Dashboard" :status="status[0]" @click="seleccionar(0)" />
-            <ButtonSide label="📝 Tareas" :status="status[1]" @click="seleccionar(1)" />
-            <ButtonSide label="👥 Personal" :status="status[2]" @click="seleccionar(2)" />
-            <ButtonSide label="🧱 Materiales" :status="status[3]" @click="seleccionar(3)" />
-            <ButtonSide label="💰 Otros Costos" :status="status[4]" @click="seleccionar(4)" />
+            <ButtonSide label="Dashboard" :status="status[0]" @click="seleccionar(0)" />
+            <ButtonSide label="Tareas" :status="status[1]" @click="seleccionar(1)" />
+            <ButtonSide label="Personal" :status="status[2]" @click="seleccionar(2)" />
+            <ButtonSide label="Materiales" :status="status[3]" @click="seleccionar(3)" />
+            <ButtonSide label="Otros Costos" :status="status[4]" @click="seleccionar(4)" />
         </nav>
     </div>
 </template>
