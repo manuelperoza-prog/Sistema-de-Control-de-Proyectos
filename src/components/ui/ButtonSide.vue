@@ -11,11 +11,13 @@
         }
     });
 
+    defineEmits(['click']);
+
 </script>
 
 <template>
 
-        <button v-bind:class="status">{{ label }}</button>
+        <button v-bind:class="status" @click="$emit('click')">{{ label }}</button>
 
 </template>
 

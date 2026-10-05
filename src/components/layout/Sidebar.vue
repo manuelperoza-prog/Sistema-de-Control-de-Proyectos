@@ -8,38 +8,53 @@ defineProps({
     }
 });
 
+    const emit = defineEmits(['cambiarVista']);
+
+    const seleccionar = (indice) => {
+        emit('cambiarVista', indice);
+    };
 </script>
 
 <template>
-
-    <div class="container">
-        <h2 class="title">Control Proyectos</h2>
-        <ButtonSide label="Dashboard" :status="status[0]" />
-        <ButtonSide label="Tareas" :status="status[1]" />
-        <ButtonSide label="Personal" :status="status[2]" />
-        <ButtonSide label="Materiales" :status="status[3]" />
-        <ButtonSide label="Otros Costos" :status="status[4]" />
+    <div class="sidebar-container">
+        <div class="logo">
+            <h2>Control Proyectos</h2>
+        </div>
+        <nav class="nav-list">
+            <ButtonSide label="📊 Dashboard" :status="status[0]" @click="seleccionar(0)" />
+            <ButtonSide label="📝 Tareas" :status="status[1]" @click="seleccionar(1)" />
+            <ButtonSide label="👥 Personal" :status="status[2]" @click="seleccionar(2)" />
+            <ButtonSide label="🧱 Materiales" :status="status[3]" @click="seleccionar(3)" />
+            <ButtonSide label="💰 Otros Costos" :status="status[4]" @click="seleccionar(4)" />
+        </nav>
     </div>
-
 </template>
 
 <style scoped>
-    .container {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 16vw;
-        border-right: 1px solid var(--c-bg-card);
-        background-color: var(--c-bg-sidebar);
-        justify-content: flex-start; 
-        padding-top: 20px; 
-        gap: 0; 
-    }
+.sidebar-container {
+    width: 250px;
+    min-width: 18vw;
+    height: 100vh;
+    background-color: var(--c-bg-sidebar);
+    border-right: 1px solid var(--c-bg-card);
+    display: flex;
+    flex-direction: column;
+}
 
-    .title {
-        color: var(--c-text-main);
-        text-align: center;
-        margin-bottom:25px;
-        font-family: var(--t-title-font);
-    }
+.logo {
+    padding: 36px;
+    border-bottom: 1px solid var(--c-bg-card);
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--c-text-main);
+}
+
+.nav-list {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+}
 </style>
