@@ -1,39 +1,52 @@
 <script setup>
-
-    defineProps({
-        title: {
-            type: String,
-            required: true
-        }
-    });
-
+defineProps({
+    titulo: {
+        type: String,
+        default: 'Visión General del Proyecto'
+    }
+});
 </script>
 
 <template>
-    <div class="header">
-        <h1 class="title">{{ title }}</h1>
-        <img class="logo" src="/public/favicon.png" alt="Logo">
-    </div>
+    <header class="top-header">
+        <h1>{{ titulo }}</h1>
+        
+        <!-- Mantén aquí tu botón/icono actual de la esquina derecha -->
+        <div class="user-action">
+            <button class="btn-menu">
+                <img src="/public/favicon.png" alt="favicon" />
+            </button>
+        </div>
+    </header>
 </template>
 
 <style scoped>
+.top-header {
+    height: 12vh;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--c-bg-card);
+    background-color: var(--c-bg-main);
+    box-sizing: border-box;
+}
 
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5vh;
-        background-color: var(--c-bg-header);
-        border-bottom: 1px solid var(--c-bg-card);
-    }
+h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--c-text-main);
+    font-family: var(--t-subtitle-font);
+}
 
-    .title {
-        color: var(--c-text-main);
-        font-family: var(--t-title-font);
-    }
-
-    .logo {
-        height: 50px;
-    }
-
-</style>    
+.btn-menu {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+.btn-menu img {
+    width: 50px;
+    height: 50px;
+}
+</style>
