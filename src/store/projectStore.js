@@ -308,8 +308,26 @@ const alternarEstadoTarea = (id) => {
     }
 };
 
-// Función auxiliar opcional para volver a los datos de prueba
-const reiniciarDatos = () => {
+// ==========================================
+// REINICIOS DEL MODAL (OPCIONES 3 Y 4)
+// ==========================================
+
+// 3. Iniciar Proyecto Nuevo: vacía todos los arreglos por completo
+const iniciarProyectoNuevo = () => {
+    state.personal = [];
+    state.materiales = [];
+    state.otrosCostos = [];
+    state.tareas = [];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        personal: [],
+        materiales: [],
+        otrosCostos: [],
+        tareas: []
+    }));
+};
+
+// 4. Devolver Valores por Defecto: elimina el LocalStorage y restaura los datos iniciales
+const restablecerPorDefecto = () => {
     localStorage.removeItem(STORAGE_KEY);
     state.personal = JSON.parse(JSON.stringify(datosPorDefecto.personal));
     state.materiales = JSON.parse(JSON.stringify(datosPorDefecto.materiales));
@@ -339,6 +357,9 @@ export const useProjectStore = () => {
         eliminarOtroCosto,
         eliminarTarea,
         alternarEstadoTarea,
-        reiniciarDatos
+        // Funciones para el Modal
+        iniciarProyectoNuevo,
+        restablecerPorDefecto,
+        reiniciarDatos: restablecerPorDefecto
     };
 };
