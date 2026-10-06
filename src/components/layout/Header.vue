@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import OptionsModal from '../ui/OptionsModal.vue';
+import MenuIcon from '../ui/MenuIcon.vue';
 
 defineProps({
     titulo: {
@@ -17,12 +18,12 @@ const mostrarModal = ref(false);
         <h1>{{ titulo }}</h1>
         
         <div class="user-action">
-            <button class="btn-menu" @click="mostrarModal = true" title="Opciones">
-                <img src="/public/favicon.png" alt="favicon" />
-            </button>
+            <MenuIcon 
+                :isOpen="mostrarModal" 
+                @click="mostrarModal = !mostrarModal" 
+            />
         </div>
 
-        <!-- Componente Modal UI modularizado -->
         <OptionsModal 
             :isOpen="mostrarModal" 
             @close="mostrarModal = false" 
@@ -49,25 +50,8 @@ h1 {
     font-family: var(--t-subtitle-font);
 }
 
-.btn-menu {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0;
+.user-action {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease;
-}
-
-.btn-menu:hover {
-    transform: scale(1.05);
-}
-
-.btn-menu img {
-    width: 50px;
-    height: 50px;
-    display: block;
 }
 </style>
