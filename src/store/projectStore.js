@@ -1,7 +1,29 @@
 // src/store/projectStore.js
-import { reactive, computed, watch } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
 
 const STORAGE_KEY = 'control_proyectos_db';
+
+const fechaLocalActual = () => {
+    const ahora = new Date();
+    const desplazamiento = ahora.getTimezoneOffset() * 60000;
+    return new Date(ahora.getTime() - desplazamiento).toISOString().slice(0, 10);
+};
+const fechaActual = ref(fechaLocalActual());
+
+if (typeof window !== 'undefined') {
+    window.setInterval(() => {
+        const hoy = fechaLocalActual();
+        if (hoy !== fechaActual.value) fechaActual.value = hoy;
+    }, 60000);
+}
+
+const diasEntreFechas = (inicio, fin) => {
+    if (!inicio || !fin) return 0;
+    const fechaInicio = Date.parse(`${inicio}T00:00:00Z`);
+    const fechaFin = Date.parse(`${fin}T00:00:00Z`);
+    if (Number.isNaN(fechaInicio) || Number.isNaN(fechaFin) || fechaFin < fechaInicio) return 0;
+    return Math.floor((fechaFin - fechaInicio) / 86400000) + 1;
+};
 
 // Datos por defecto (se usan si no hay nada guardado en el navegador)
 const datosPorDefecto = {
@@ -24,7 +46,8 @@ const datosPorDefecto = {
         {
             id: 1,
             nombre: 'Preparación de Terreno y Fundaciones',
-            fecha: '2026-10-05',
+            fechaInicio: '2026-10-05',
+            fechaCierre: '2026-10-05',
             completada: true,
             asignacionesPersonal: [
                 { personalId: 1, horas: 6 },
@@ -42,7 +65,8 @@ const datosPorDefecto = {
         {
             id: 2,
             nombre: 'Vaciado de Concreto e Instalación Eléctrica',
-            fecha: '2026-10-05',
+            fechaInicio: '2026-10-05',
+            fechaCierre: '',
             completada: false,
             asignacionesPersonal: [
                 { personalId: 1, horas: 4 },
@@ -59,7 +83,8 @@ const datosPorDefecto = {
         {
             id: 3,
             nombre: 'Acabados y Pintura Final',
-            fecha: '2026-10-06',
+            fechaInicio: '2026-10-06',
+            fechaCierre: '',
             completada: false,
             asignacionesPersonal: [
                 { personalId: 3, horas: 7 }
@@ -79,7 +104,16 @@ const cargarEstadoInicial = () => {
     const datosGuardados = localStorage.getItem(STORAGE_KEY);
     if (datosGuardados) {
         try {
-            return JSON.parse(datosGuardados);
+            const datos = JSON.parse(datosGuardados);
+            datos.tareas = (datos.tareas || []).map(tarea => {
+                const fechaInicio = tarea.fechaInicio || tarea.fecha || fechaLocalActual();
+                return {
+                    ...tarea,
+                    fechaInicio,
+                    fechaCierre: tarea.fechaCierre || (tarea.completada ? tarea.fecha || fechaInicio : '')
+                };
+            });
+            return datos;
         } catch (error) {
             console.error('Error al leer de localStorage:', error);
         }
@@ -114,12 +148,17 @@ const costosPersonal = computed(() => {
     let real = 0;
 
     state.tareas.forEach(tarea => {
+        const hoy = fechaActual.value;
+        const fechaFinEstimada = tarea.fechaCierre || hoy;
+        const fechaFinReal = tarea.completada ? tarea.fechaCierre || hoy : hoy;
+        const diasEstimados = diasEntreFechas(tarea.fechaInicio, fechaFinEstimada);
+        const diasReales = diasEntreFechas(tarea.fechaInicio, fechaFinReal);
+
         tarea.asignacionesPersonal.forEach(asig => {
             const persona = state.personal.find(p => p.id === asig.personalId);
             if (persona) {
-                const subtotal = asig.horas * persona.costoHora;
-                estimado += subtotal;
-                if (tarea.completada) real += subtotal;
+                estimado += asig.horas * persona.costoHora * diasEstimados;
+                real += asig.horas * persona.costoHora * diasReales;
             }
         });
     });
@@ -170,20 +209,29 @@ const costoTotalProyecto = computed(() => ({
 
 const personalSobreutilizado = computed(() => {
     const mapaHoras = {};
+    const hoy = fechaActual.value;
 
     state.tareas.forEach(tarea => {
+        const fechaFin = tarea.fechaCierre && tarea.fechaCierre < hoy ? tarea.fechaCierre : hoy;
+        const dias = diasEntreFechas(tarea.fechaInicio, fechaFin);
+
         tarea.asignacionesPersonal.forEach(asig => {
-            const clave = `${asig.personalId}_${tarea.fecha}`;
-            if (!mapaHoras[clave]) {
-                mapaHoras[clave] = {
-                    personalId: asig.personalId,
-                    fecha: tarea.fecha,
-                    totalHoras: 0,
-                    tareas: []
-                };
+            for (let desplazamiento = 0; desplazamiento < dias; desplazamiento += 1) {
+                const fecha = new Date(Date.parse(`${tarea.fechaInicio}T00:00:00Z`) + desplazamiento * 86400000)
+                    .toISOString()
+                    .slice(0, 10);
+                const clave = `${asig.personalId}_${fecha}`;
+                if (!mapaHoras[clave]) {
+                    mapaHoras[clave] = {
+                        personalId: asig.personalId,
+                        fecha,
+                        totalHoras: 0,
+                        tareas: []
+                    };
+                }
+                mapaHoras[clave].totalHoras += asig.horas;
+                mapaHoras[clave].tareas.push({ nombre: tarea.nombre, horas: asig.horas });
             }
-            mapaHoras[clave].totalHoras += asig.horas;
-            mapaHoras[clave].tareas.push({ nombre: tarea.nombre, horas: asig.horas });
         });
     });
 
@@ -257,7 +305,8 @@ const agregarTarea = (nuevaTarea) => {
     state.tareas.push({
         id: Date.now(),
         nombre: nuevaTarea.nombre,
-        fecha: nuevaTarea.fecha,
+        fechaInicio: nuevaTarea.fechaInicio,
+        fechaCierre: nuevaTarea.fechaCierre || '',
         completada: false,
         asignacionesPersonal: nuevaTarea.asignacionesPersonal || [],
         materialesUsados: nuevaTarea.materialesUsados || [],
@@ -305,7 +354,35 @@ const alternarEstadoTarea = (id) => {
     const tarea = state.tareas.find(t => t.id === id);
     if (tarea) {
         tarea.completada = !tarea.completada;
+        if (tarea.completada && !tarea.fechaCierre) {
+            tarea.fechaCierre = fechaActual.value;
+        } else if (!tarea.completada) {
+            tarea.fechaCierre = '';
+        }
     }
+};
+
+const calcularCostoTarea = (tarea) => {
+    const fechaFin = tarea.fechaCierre || fechaActual.value;
+    const dias = diasEntreFechas(tarea.fechaInicio, fechaFin);
+    let total = 0;
+
+    tarea.asignacionesPersonal.forEach(asig => {
+        const persona = state.personal.find(p => p.id === asig.personalId);
+        if (persona) total += asig.horas * persona.costoHora * dias;
+    });
+
+    tarea.materialesUsados.forEach(item => {
+        const material = state.materiales.find(m => m.id === item.materialId);
+        if (material) total += item.cantidad * material.costoUnidad;
+    });
+
+    tarea.otrosCostosUsados.forEach(item => {
+        const gasto = state.otrosCostos.find(g => g.id === item.costoId);
+        if (gasto) total += item.cantidad * gasto.costoUnidad;
+    });
+
+    return total;
 };
 
 // ==========================================
@@ -338,6 +415,7 @@ const restablecerPorDefecto = () => {
 export const useProjectStore = () => {
     return {
         state,
+        fechaActual,
         avanceProyecto,
         costosPersonal,
         costosMateriales,
@@ -357,6 +435,7 @@ export const useProjectStore = () => {
         eliminarOtroCosto,
         eliminarTarea,
         alternarEstadoTarea,
+        calcularCostoTarea,
         // Funciones para el Modal
         iniciarProyectoNuevo,
         restablecerPorDefecto,

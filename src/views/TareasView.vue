@@ -3,16 +3,23 @@ import { ref } from 'vue';
 import { useProjectStore } from '../store/projectStore';
 
 const { 
-    state, 
+    state,
+    fechaActual,
     agregarTarea, 
     alternarEstadoTarea, 
     eliminarTarea, 
-    puedeBorrarTarea 
+    puedeBorrarTarea,
+    calcularCostoTarea
 } = useProjectStore();
 
 // Campos principales del formulario
 const nombre = ref('');
-const fecha = ref('');
+const fechaLocal = () => {
+    const ahora = new Date();
+    return new Date(ahora.getTime() - ahora.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+};
+const fechaHoy = ref(fechaLocal());
+const fechaInicio = ref(fechaHoy.value);
 
 // Listas dinámicas para la asignación de recursos a la nueva tarea
 const asignacionesPersonal = ref([]);
@@ -41,34 +48,9 @@ const removerFilaOtroCosto = (index) => {
     otrosCostosUsados.value.splice(index, 1);
 };
 
-// Cálculo auxiliar del costo total de una tarea individual
-const calcularCostoTarea = (tarea) => {
-    let total = 0;
-
-    // Costo Personal
-    tarea.asignacionesPersonal.forEach(asig => {
-        const persona = state.personal.find(p => p.id === asig.personalId);
-        if (persona) total += asig.horas * persona.costoHora;
-    });
-
-    // Costo Materiales
-    tarea.materialesUsados.forEach(item => {
-        const mat = state.materiales.find(m => m.id === item.materialId);
-        if (mat) total += item.cantidad * mat.costoUnidad;
-    });
-
-    // Otros Costos
-    tarea.otrosCostosUsados.forEach(item => {
-        const gasto = state.otrosCostos.find(g => g.id === item.costoId);
-        if (gasto) total += item.cantidad * gasto.costoUnidad;
-    });
-
-    return total;
-};
-
 // Guardar tarea y limpiar formulario
 const guardar = () => {
-    if (!nombre.value.trim() || !fecha.value) return;
+    if (!nombre.value.trim() || !fechaInicio.value) return;
 
     // Filtramos filas incompletas si el usuario las agregó pero no seleccionó nada
     const personalValido = asignacionesPersonal.value.filter(a => a.personalId && a.horas > 0);
@@ -77,7 +59,7 @@ const guardar = () => {
 
     agregarTarea({
         nombre: nombre.value.trim(),
-        fecha: fecha.value,
+        fechaInicio: fechaInicio.value,
         asignacionesPersonal: personalValido,
         materialesUsados: materialesValidos,
         otrosCostosUsados: otrosValidos
@@ -85,7 +67,8 @@ const guardar = () => {
 
     // Resetear formulario
     nombre.value = '';
-    fecha.value = '';
+    fechaHoy.value = fechaLocal();
+    fechaInicio.value = fechaHoy.value;
     asignacionesPersonal.value = [];
     materialesUsados.value = [];
     otrosCostosUsados.value = [];
@@ -111,14 +94,18 @@ const guardar = () => {
                         />
                     </div>
                     <div class="form-group flex-1">
-                        <label>Fecha de Ejecución</label>
+                        <label>Fecha de Inicio</label>
                         <input 
-                            v-model="fecha" 
+                            v-model="fechaInicio"
                             type="date" 
                             required 
                         />
                     </div>
                 </div>
+                <p class="date-help">
+                    La fecha de inicio se establece hoy por defecto. Al concluir la tarea se registra automáticamente la fecha de cierre;
+                    el costo de personal se calcula con las horas diarias asignadas durante ese intervalo.
+                </p>
 
                 <!-- Sub-sección: Asignación de Personal -->
                 <div class="sub-section">
@@ -140,7 +127,7 @@ const guardar = () => {
                             type="number" 
                             min="0.5" 
                             step="0.5" 
-                            placeholder="Horas diarias" 
+                            placeholder="Horas por día"
                             required 
                         />
                         <button type="button" class="btn-remove" @click="removerFilaPersonal(index)">✕</button>
@@ -211,7 +198,8 @@ const guardar = () => {
                     <thead>
                         <tr>
                             <th>Tarea</th>
-                            <th>Fecha</th>
+                            <th>Fecha de Inicio</th>
+                            <th>Fecha de Cierre</th>
                             <th>Recursos Vinculados</th>
                             <th>Costo Estimado</th>
                             <th>Estado</th>
@@ -223,7 +211,24 @@ const guardar = () => {
                             <td>
                                 <strong>{{ tarea.nombre }}</strong>
                             </td>
-                            <td>{{ tarea.fecha }}</td>
+                            <td>
+                                <input
+                                    v-model="tarea.fechaInicio"
+                                    type="date"
+                                    :max="tarea.completada ? tarea.fechaCierre : undefined"
+                                    aria-label="Fecha de inicio de la tarea"
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    v-model="tarea.fechaCierre"
+                                    type="date"
+                                    :min="tarea.fechaInicio"
+                                    :max="fechaActual"
+                                    :disabled="!tarea.completada"
+                                    aria-label="Fecha de cierre de la tarea"
+                                />
+                            </td>
                             <td>
                                 <div class="resources-summary">
                                     <span v-if="tarea.asignacionesPersonal.length > 0">
@@ -295,6 +300,12 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.date-help {
+    margin: -12px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.7;
 }
 
 .form-row {
