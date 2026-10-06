@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useProjectStore } from '../store/projectStore';
+import DeleteButton from '../components/ui/DeleteButton.vue';
 
 const { 
     state,
@@ -203,7 +204,7 @@ const guardar = () => {
                             <th>Recursos Vinculados</th>
                             <th>Costo Estimado</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="col-acciones">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -255,15 +256,12 @@ const guardar = () => {
                                     {{ tarea.completada ? '✓ Concluida' : '⏳ Pendiente' }}
                                 </button>
                             </td>
-                            <td>
-                                <button 
-                                    class="btn-delete"
+                            <td class="col-acciones">
+                                <DeleteButton 
                                     :disabled="!puedeBorrarTarea(tarea.id)"
                                     :title="!puedeBorrarTarea(tarea.id) ? 'No se puede eliminar: tiene recursos asignados' : 'Eliminar tarea'"
                                     @click="eliminarTarea(tarea.id)"
-                                >
-                                    Eliminar
-                                </button>
+                                />
                             </td>
                         </tr>
                     </tbody>
@@ -445,6 +443,7 @@ th, td {
     padding: 14px 16px;
     border-bottom: 1px solid var(--c-bg-main);
     font-family: var(--t-body-font);
+    vertical-align: middle;
 }
 
 th {
@@ -497,26 +496,11 @@ th {
     color: var(--c-warning);
 }
 
-.btn-delete {
-    background: transparent;
-    border: 1px solid var(--c-warning);
-    color: var(--c-warning);
-    padding: 6px 14px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: var(--t-body-font);
-    transition: background-color 0.2s ease;
-}
-
-.btn-delete:hover:not(:disabled) {
-    background-color: var(--c-warning);
-    color: var(--c-bg-sidebar);
-}
-
-.btn-delete:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    border-color: var(--c-text-main);
-    color: var(--c-text-main);
+/* Fijación y centrado de la columna de acciones */
+th.col-acciones,
+td.col-acciones {
+    text-align: center;
+    width: 160px;
+    min-width: 160px;
 }
 </style>
