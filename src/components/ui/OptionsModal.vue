@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useProjectStore } from '../../store/projectStore';
+import TermsContent from './TermsContent.vue';
 
 defineProps({
     isOpen: {
@@ -76,11 +77,7 @@ const accionRestablecerDefecto = () => {
 
                 <!-- Desplegable de Términos -->
                 <div v-if="mostrarTerminos" class="terms-panel">
-                    <h3>Terminos de Uso</h3>
-                    <p>
-                        Este sistema de Control de Proyectos funciona enteramente en memoria local del navegador sin persistencia remota. 
-                        Las estimaciones de costos, calculo de horas y sobreutilizacion diaria de recursos son de caracter referencial.
-                    </p>
+                    <TermsContent />
                 </div>
             </div>
         </div>
@@ -88,7 +85,6 @@ const accionRestablecerDefecto = () => {
 </template>
 
 <style scoped>
-/* Telón de fondo: oscurece el Dashboard de forma semi-transparente con desenfoque */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -104,19 +100,19 @@ const accionRestablecerDefecto = () => {
     z-index: 1000;
 }
 
-/* Recuadro del modal */
 .modal-card {
     background-color: var(--c-bg-card);
     border: 1px solid var(--c-text-main);
     border-radius: 10px;
-    width: 90%;
-    max-width: 480px;
+    width: min(90%, 640px);
+    max-height: calc(100vh - 32px);
     padding: 25px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 20px;
     font-family: var(--t-body-font);
+    overflow-y: auto;
 }
 
 .modal-header {
@@ -134,7 +130,6 @@ const accionRestablecerDefecto = () => {
     font-family: var(--t-subtitle-font);
 }
 
-/* Botón cerrar en color naranja */
 .btn-close {
     background: transparent;
     border: 1px solid var(--c-warning);
@@ -195,6 +190,9 @@ const accionRestablecerDefecto = () => {
     padding: 15px;
     border-radius: 6px;
     font-family: var(--t-body-font);
+    max-height: min(55vh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .terms-panel h3 {
@@ -205,10 +203,21 @@ const accionRestablecerDefecto = () => {
 }
 
 .terms-panel p {
-    margin: 0;
+    margin: 0 0 10px;
     font-size: 0.85rem;
     color: var(--c-text-main);
     line-height: 1.4;
     font-family: var(--t-body-font);
+}
+
+.terms-panel p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .modal-card {
+        width: calc(100% - 24px);
+        padding: 18px;
+    }
 }
 </style>

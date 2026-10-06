@@ -2,6 +2,7 @@
 import { ref, shallowRef } from 'vue';
 import Header from './components/layout/Header.vue';
 import Sidebar from './components/layout/Sidebar.vue';
+import TermsAcceptanceModal from './components/ui/TermsAcceptanceModal.vue';
 
 // Vistas
 import DashboardView from './views/DashboardView.vue';
@@ -30,16 +31,24 @@ const titulos = [
 const status = ref(['active', 'btn', 'btn', 'btn', 'btn']);
 const vistaActual = shallowRef(vistas[0]);
 const tituloActual = ref(titulos[0]);
+const TERMS_ACCEPTED_KEY = 'control_proyectos_terms_accepted';
+const termsAccepted = ref(localStorage.getItem(TERMS_ACCEPTED_KEY) === 'true');
 
 const cambiarVista = (indice) => {
     status.value = status.value.map((_, i) => (i === indice ? 'active' : 'btn'));
     vistaActual.value = vistas[indice];
     tituloActual.value = titulos[indice]; // Actualiza el título del Header
 };
+
+const aceptarTerminos = () => {
+    localStorage.setItem(TERMS_ACCEPTED_KEY, 'true');
+    termsAccepted.value = true;
+};
 </script>
 
 <template>
-    <div class="layout-wrapper">
+    <TermsAcceptanceModal v-if="!termsAccepted" @accepted="aceptarTerminos" />
+    <div v-else class="layout-wrapper">
         <Sidebar :status="status" @cambiarVista="cambiarVista" />
 
         <div class="main-wrapper">
