@@ -63,12 +63,12 @@ watch(
     { immediate: true }
 );
 
-// Comprobación de cambios no guardados
+// Comprobacion de cambios no guardados
 const hayCambios = computed(() => {
     return JSON.stringify(draft.value) !== snapshotInicial.value;
 });
 
-// Listas de recursos aún no asignados en el borrador
+// Listas de recursos aun no asignados en el borrador
 const personalDisponible = computed(() => {
     const asignados = draft.value.asignacionesPersonal.map(a => a.personalId);
     return state.personal.filter(p => !asignados.includes(p.id));
@@ -84,7 +84,7 @@ const otrosCostosDisponibles = computed(() => {
     return state.otrosCostos.filter(o => !asignados.includes(o.id));
 });
 
-// Helpers de resolución de nombres
+// Helpers de resolucion de nombres
 const obtenerNombrePersonal = (id) => {
     const p = state.personal.find(item => item.id === id);
     return p ? `${p.nombre} ($${p.costoHora}/h)` : 'Desconocido';
@@ -178,7 +178,7 @@ const guardarCambios = () => {
     emit('close');
 };
 
-// Salida con validación de cambios pendientes
+// Salida con validacion de cambios pendientes
 const intentarCerrar = () => {
     if (hayCambios.value) {
         const confirmar = confirm('¿Esta seguro de salir sin guardar los cambios realizados en los recursos?');
@@ -193,7 +193,7 @@ const intentarCerrar = () => {
         <div v-if="isOpen && tarea" class="modal-backdrop" @click.self="intentarCerrar">
             <div class="modal-card">
                 <div class="modal-header">
-                    <div>
+                    <div class="header-titles">
                         <h2>Recursos de la Tarea</h2>
                         <span class="task-subtitle">{{ tarea.nombre }}</span>
                     </div>
@@ -417,6 +417,7 @@ const intentarCerrar = () => {
     gap: 18px;
     font-family: var(--t-body-font);
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .modal-header {
@@ -425,6 +426,12 @@ const intentarCerrar = () => {
     align-items: flex-start;
     border-bottom: 1px solid var(--c-text-main);
     padding-bottom: 12px;
+    gap: 12px;
+}
+
+.header-titles {
+    flex: 1;
+    min-width: 0;
 }
 
 .modal-header h2 {
@@ -439,12 +446,16 @@ const intentarCerrar = () => {
     color: var(--c-primary);
     display: block;
     margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 .btn-save {
@@ -458,6 +469,7 @@ const intentarCerrar = () => {
     font-size: 0.85rem;
     font-weight: bold;
     transition: 300ms;
+    box-sizing: border-box;
 }
 
 .btn-save:hover:not(:disabled) {
@@ -480,6 +492,7 @@ const intentarCerrar = () => {
     font-size: 0.85rem;
     font-weight: bold;
     transition: 300ms;
+    box-sizing: border-box;
 }
 
 .btn-close:hover {
@@ -491,6 +504,7 @@ const intentarCerrar = () => {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    box-sizing: border-box;
 }
 
 .resource-block {
@@ -501,6 +515,8 @@ const intentarCerrar = () => {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .resource-block h3 {
@@ -524,18 +540,25 @@ const intentarCerrar = () => {
     gap: 12px;
     padding: 8px 0;
     border-bottom: 1px solid var(--c-bg-card);
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .resource-name {
     flex: 1;
+    min-width: 0;
     font-size: 0.88rem;
     color: var(--c-text-main);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .counter-box {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
 }
 
 .btn-counter {
@@ -550,6 +573,7 @@ const intentarCerrar = () => {
     font-family: var(--t-body-font);
     transition: 200ms;
     padding: 0;
+    box-sizing: border-box;
 }
 
 .btn-counter:hover:not(:disabled) {
@@ -570,27 +594,35 @@ const intentarCerrar = () => {
     font-size: 0.9rem;
 }
 
+/* Fila de adicion adaptada para evitar desbordamientos en cualquier navegador */
 .add-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 6px;
     align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .add-row select {
-    flex: 2;
+    flex: 1 1 180px;
+    min-width: 0; /* Previene que el ancho intrinseco de las opciones desborde el flexbox */
     background-color: var(--c-bg-card);
     border: 1px solid var(--c-bg-sidebar);
     color: var(--c-text-main);
-    padding: 8px;
+    padding: 8px 10px;
     border-radius: 4px;
     font-family: var(--t-body-font);
     font-size: 0.85rem;
     outline: none;
+    box-sizing: border-box;
 }
 
 .add-row input {
-    flex: 1;
+    flex: 0 0 75px;
+    width: 75px;
+    min-width: 60px;
     background-color: var(--c-bg-card);
     border: 1px solid var(--c-bg-sidebar);
     color: var(--c-text-main);
@@ -599,18 +631,22 @@ const intentarCerrar = () => {
     font-family: var(--t-body-font);
     font-size: 0.85rem;
     outline: none;
+    box-sizing: border-box;
 }
 
 .btn-add-action {
+    flex: 0 0 auto;
     background-color: var(--c-primary);
     color: var(--c-text-main);
     border: none;
-    padding: 8px 14px;
+    padding: 8px 16px;
     border-radius: 4px;
     font-size: 0.85rem;
     cursor: pointer;
     font-family: var(--t-subtitle-font);
     transition: 200ms;
+    box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .btn-add-action:hover:not(:disabled) {
@@ -620,5 +656,21 @@ const intentarCerrar = () => {
 .btn-add-action:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+/* En pantallas angostas o móviles, apilamos ordenadamente */
+@media (max-width: 520px) {
+    .add-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-row select,
+    .add-row input,
+    .btn-add-action {
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: 100%;
+    }
 }
 </style>
