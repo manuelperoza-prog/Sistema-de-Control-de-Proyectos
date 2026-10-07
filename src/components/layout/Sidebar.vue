@@ -55,6 +55,5 @@ defineProps({
 .nav-list {
     display: flex;
     flex-direction: column;
-    padding-top: 10px;
 }
 </style>
